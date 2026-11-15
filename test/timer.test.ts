@@ -49,7 +49,7 @@ test('cues are split cleanly across ticks (no doubles, no gaps)', () => {
 });
 
 test('short segments get only the ticks that fit', () => {
-  const short = buildPlan({ mode: 'interval', work: 2, rest: 0, rounds: 1, sets: 1, setRest: 0 }, 0);
+  const short = buildPlan({ mode: 'tabata', work: 2, rest: 0, rounds: 1, sets: 1, setRest: 0 }, 0);
   assert.deepEqual(cuesBetween(short, -1, 2_000).map((c) => `${c.kind}@${c.at}`), ['start@0', 'tick@1000', 'finish@2000']);
 });
 
