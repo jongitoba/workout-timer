@@ -53,6 +53,21 @@ test('short segments get only the ticks that fit', () => {
   assert.deepEqual(cuesBetween(short, -1, 2_000).map((c) => `${c.kind}@${c.at}`), ['start@0', 'tick@1000', 'finish@2000']);
 });
 
+test('halfway cues: only when asked for, only in work, never inside the countdown', () => {
+  const halves = (p: typeof plan, to: number) =>
+    cuesBetween(p, -1, to, { halfway: true }).filter((c) => c.kind === 'half').map((c) => c.at / 1000);
+  assert.deepEqual(halves(plan, 55_000), [15, 45]);
+  assert.equal(cuesBetween(plan, -1, 55_000).some((c) => c.kind === 'half'), false);
+  const odd = buildPlan({ mode: 'interval', work: 45, rest: 15, rounds: 1, sets: 1, setRest: 0 }, 0);
+  assert.deepEqual(halves(odd, 45_000), [22.5]);
+  const short = buildPlan({ mode: 'interval', work: 6, rest: 0, rounds: 1, sets: 1, setRest: 0 }, 0);
+  assert.deepEqual(halves(short, 6_000), []);
+  const amrap = buildPlan({ mode: 'amrap', duration: 600 }, 0);
+  assert.deepEqual(halves(amrap, 600_000), [300]);
+  const open = buildPlan({ mode: 'fortime', cap: 0 }, 0);
+  assert.deepEqual(halves(open, 3_600_000), []);
+});
+
 test('open-ended For Time never finishes or ticks on its own', () => {
   const open = buildPlan({ mode: 'fortime', cap: 0 }, 0);
   assert.deepEqual(cuesBetween(open, -1, 3_600_000).map((c) => c.kind), ['start']);

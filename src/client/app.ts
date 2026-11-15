@@ -303,7 +303,7 @@ function applySettings(): void {
 function initSettings(): void {
   const form = el.settingsForm;
   const s = stored.settings;
-  const check = (name: 'sound' | 'flash' | 'wakeLock') => {
+  const check = (name: 'sound' | 'halfway' | 'flash' | 'wakeLock') => {
     const input = form.elements.namedItem(name) as HTMLInputElement;
     input.checked = s[name];
     input.addEventListener('change', () => {
@@ -313,6 +313,7 @@ function initSettings(): void {
     });
   };
   check('sound');
+  check('halfway');
   check('flash');
   check('wakeLock');
   const volume = form.elements.namedItem('volume') as HTMLInputElement;
@@ -425,7 +426,7 @@ function tick(): void {
   const r = run;
   if (!r || r.finished !== null) return;
   const e = elapsedOf(r);
-  for (const cue of cuesBetween(r.plan, r.lastElapsed, e)) {
+  for (const cue of cuesBetween(r.plan, r.lastElapsed, e, { halfway: stored.settings.halfway })) {
     if (e - cue.at < STALE_CUE_MS) handleCue(cue);
   }
   r.lastElapsed = e;

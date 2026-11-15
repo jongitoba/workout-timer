@@ -50,8 +50,10 @@ Domain rules that the code depends on:
 - Elapsed time uses `Date.now()`, not `performance.now()`, so the clock stays right after
   the phone has been locked. Cues older than 1 s are dropped instead of played in a burst.
 - Cues: three short beeps for the last three seconds of each timed segment, a long high
-  beep when work starts, a long low beep when rest starts, three beeps at the finish. The
-  get-ready phase starts silently. Sound is Web Audio (no audio files) and must be
+  beep when work starts, a long low beep when rest starts, three beeps at the finish.
+  Optionally (setting "Pip halvveis", off by default) two quick beeps halfway through each
+  timed work segment, left out when that would land inside the 3-2-1. The get-ready phase
+  starts silently. Sound is Web Audio (no audio files) and must be
   unlocked from a user gesture (the Start tap).
 - Screen flash: with "Farge på hele skjermen" on, the run screen takes the phase colour
   (`--phase-*` in `src/styles/global.css`) and pulses white on phase changes. The phase

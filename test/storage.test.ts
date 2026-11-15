@@ -11,7 +11,7 @@ test('missing or corrupt storage gives defaults', () => {
 
 test('round trip', () => {
   const s = emptyStored();
-  s.settings = { prep: 5, sound: false, volume: 0.3, flash: false, wakeLock: true };
+  s.settings = { prep: 5, sound: false, volume: 0.3, halfway: true, flash: false, wakeLock: true };
   s.presets.push({ id: 'a', name: 'Mandag', config: { mode: 'emom', every: 90, rounds: 12 } });
   s.last.amrap = { mode: 'amrap', duration: 900 };
   assert.deepEqual(parseStored(serializeStored(s)), s);
