@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "workout-timer",
+  "compatibility_date": "2026-11-01",
+  // Builds the Astro site before deploy (also in Cloudflare Workers Builds).
+  "build": { "command": "npm run build" },
+  // Static assets only. There is no Worker script: the app has no server logic and
+  // keeps all data in the visitor's browser (localStorage).
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}

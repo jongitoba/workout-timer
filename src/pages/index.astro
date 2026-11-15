@@ -1,0 +1,126 @@
+---
+// The whole app is this one page. Views are switched by src/client/app.ts based
+// on the URL hash, so everything works offline from a single cached HTML file.
+import Base from '../layouts/Base.astro';
+import { MODES, MODE_INFO } from '../lib/workouts.ts';
+---
+<Base title="Treningstimer">
+  <main class="wrap">
+    <section id="view-home" class="view" aria-labelledby="home-title">
+      <header class="app-head">
+        <h1 id="home-title">Treningstimer</h1>
+        <a class="icon-btn" href="#/innstillinger" aria-label="Innstillinger" title="Innstillinger">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+        </a>
+      </header>
+      <p class="lead">Velg en øktform.</p>
+      <div class="modes">
+        {MODES.map((m) => (
+          <a class="mode-card" href={`#/${MODE_INFO[m].slug}`} data-mode={m}>
+            <span class="mode-title">{MODE_INFO[m].title}</span>
+            <span class="mode-summary">{MODE_INFO[m].summary}</span>
+          </a>
+        ))}
+      </div>
+      <h2>Lagrede økter</h2>
+      <ul id="presets" class="presets"></ul>
+      <p id="presets-empty" class="muted">Ingen lagrede økter ennå. Sett opp en økt og trykk «Lagre økt».</p>
+      <p id="install-hint" class="hint-box" hidden></p>
+    </section>
+
+    <section id="view-setup" class="view" hidden aria-labelledby="setup-title">
+      <header class="app-head">
+        <a class="back" href="#/">← Tilbake</a>
+      </header>
+      <h1 id="setup-title"></h1>
+      <p id="setup-summary" class="lead"></p>
+      <form id="setup-form" novalidate>
+        <div id="setup-fields" class="fields"></div>
+        <p class="total">Total tid: <strong id="setup-total"></strong></p>
+        <div class="actions">
+          <button type="submit" class="primary big">Start</button>
+          <button type="button" id="save-preset" class="ghost">Lagre økt</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="view-settings" class="view" hidden aria-labelledby="settings-title">
+      <header class="app-head">
+        <a class="back" href="#/">← Tilbake</a>
+      </header>
+      <h1 id="settings-title">Innstillinger</h1>
+      <form id="settings-form" class="fields" novalidate>
+        <div id="settings-prep"></div>
+        <label class="toggle"><input type="checkbox" name="sound" /> <span>Lyd</span></label>
+        <div class="field">
+          <label for="settings-volume">Volum</label>
+          <input id="settings-volume" type="range" name="volume" min="0" max="1" step="0.05" />
+        </div>
+        <button type="button" id="test-sound" class="ghost">Test lyd</button>
+        <label class="toggle"><input type="checkbox" name="flash" /> <span>Farge på hele skjermen etter fase</span></label>
+        <label class="toggle"><input type="checkbox" name="wakeLock" /> <span>Hold skjermen på under økta</span></label>
+      </form>
+      <p class="muted small">Innstillinger og lagrede økter lagres bare på denne enheten.</p>
+      <p class="muted small">På iPhone følger lyden lydløs-bryteren.</p>
+    </section>
+  </main>
+
+  <section id="view-run" class="run" hidden aria-label="Økt pågår" data-phase="prep">
+    <div class="run-flash" aria-hidden="true"></div>
+    <div class="run-top">
+      <span id="run-mode"></span>
+      <span id="run-total" title="Tid igjen totalt"></span>
+    </div>
+    <div class="run-main">
+      <p id="run-phase" class="run-phase" aria-live="polite"></p>
+      <p id="run-clock" class="run-clock" role="timer" aria-atomic="true">0:00</p>
+      <p id="run-caption" class="run-caption"></p>
+      <div id="run-progress" class="run-progress" aria-hidden="true"><div id="run-bar"></div></div>
+    </div>
+    <div id="run-counter" class="run-counter" hidden>
+      <button type="button" id="round-minus" class="ghost" aria-label="Fjern en runde">−</button>
+      <button type="button" id="round-plus" class="counter-btn">+1 runde <span id="round-count">0</span></button>
+    </div>
+    <div id="run-controls" class="run-controls">
+      <button type="button" id="run-stop" class="ghost">Avslutt</button>
+      <button type="button" id="run-toggle" class="primary">Pause</button>
+      <button type="button" id="run-skip" class="ghost">Hopp over</button>
+    </div>
+    <div id="run-done" class="run-done" hidden>
+      <p id="run-result" class="run-result"></p>
+      <div class="run-controls">
+        <button type="button" id="run-again" class="primary">Kjør igjen</button>
+        <button type="button" id="run-close" class="ghost">Tilbake</button>
+      </div>
+    </div>
+  </section>
+
+  <dialog id="stop-dialog" aria-labelledby="stop-title">
+    <form method="dialog">
+      <h2 id="stop-title">Avslutte økta?</h2>
+      <p class="muted">Tiden stopper og økta avsluttes.</p>
+      <div class="actions">
+        <button value="cancel" class="ghost">Fortsett økta</button>
+        <button value="stop" class="danger">Avslutt</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="save-dialog" aria-labelledby="save-title">
+    <form method="dialog">
+      <h2 id="save-title">Lagre økt</h2>
+      <div class="field">
+        <label for="save-name">Navn</label>
+        <input id="save-name" name="name" maxlength="40" autocomplete="off" required />
+      </div>
+      <div class="actions">
+        <button value="cancel" class="ghost" formnovalidate>Avbryt</button>
+        <button value="save" class="primary">Lagre</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    import '../client/app.ts';
+  </script>
+</Base>
