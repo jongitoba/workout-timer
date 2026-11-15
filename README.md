@@ -84,7 +84,11 @@ npm run check
    - Name: `workout-timer` (must match `name` in `wrangler.jsonc`)
    - Build command: empty (`wrangler.jsonc` runs `npm run build` itself). Deploy command: `npx wrangler deploy`.
    - Production branch: `main`.
+   - Connecting the repo does not build what is already on `main`. Run the first build from
+     the dashboard or push a commit, and check that a deployment shows up.
 3. The Worker → Settings → **Domains & Routes** → *Add* → *Custom domain* → `workout-timer.jonoba.no`.
+   Let Cloudflare create the DNS record from there. A hand-made DNS record for the hostname,
+   or a Worker that has never deployed, gives error 1016 (Origin DNS error).
 4. Add the project card to `jongitoba/jonoba-nettside` (`src/content/projects/workout-timer.md`).
 
 ## Installing on the phone

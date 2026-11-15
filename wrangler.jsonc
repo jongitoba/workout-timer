@@ -10,5 +10,8 @@
     "directory": "./dist",
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page"
-  }
+  },
+  // Lets Workers Builds run `wrangler preview` for non-main branches (PR preview URLs).
+  // Empty on purpose: assets and compatibility settings above apply to previews too.
+  "previews": {}
 }
