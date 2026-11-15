@@ -28,7 +28,7 @@ export type Stored = {
 };
 
 export const DEFAULT_SETTINGS: Settings = {
-  prep: 10, sound: true, volume: 0.8, halfway: false, flash: true, wakeLock: true,
+  prep: 10, sound: true, volume: 0.8, halfway: true, flash: true, wakeLock: true,
 };
 export const MAX_PRESETS = 50;
 export const MAX_NAME = 40;

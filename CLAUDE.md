@@ -51,7 +51,7 @@ Domain rules that the code depends on:
   the phone has been locked. Cues older than 1 s are dropped instead of played in a burst.
 - Cues: three short beeps for the last three seconds of each timed segment, a long high
   beep when work starts, a long low beep when rest starts, three beeps at the finish.
-  Optionally (setting "Pip halvveis", off by default) two quick beeps halfway through each
+  With the setting "Pip halvveis" (on by default), two quick beeps halfway through each
   timed work segment, left out when that would land inside the 3-2-1. The get-ready phase
   starts silently. Sound is Web Audio (no audio files) and must be
   unlocked from a user gesture (the Start tap).
