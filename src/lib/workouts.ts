@@ -60,7 +60,7 @@ export const MODE_INFO: Record<Mode, ModeInfo> = {
     mode: 'tabata',
     slug: 'tabata',
     title: 'Tabata',
-    summary: '20 sekunder arbeid, 10 sekunder hvile, 8 runder.',
+    summary: 'Jobbe og hvile, i flere runder.',
     fields: intervalFields,
     defaults: { mode: 'tabata', work: 20, rest: 10, rounds: 8, sets: 1, setRest: 60 },
     countsRounds: false,
@@ -69,7 +69,7 @@ export const MODE_INFO: Record<Mode, ModeInfo> = {
     mode: 'amrap',
     slug: 'amrap',
     title: 'AMRAP',
-    summary: 'Så mange runder som mulig før tiden er ute.',
+    summary: 'As Many Reps As Possible, før tia går ut.',
     fields: [
       {
         key: 'duration', label: 'Varighet', kind: 'duration', min: 10, max: 4 * HOUR, plainUnit: 60,
@@ -83,7 +83,7 @@ export const MODE_INFO: Record<Mode, ModeInfo> = {
     mode: 'emom',
     slug: 'emom',
     title: 'EMOM',
-    summary: 'Ny runde hvert minutt. Hvil resten av minuttet.',
+    summary: 'Every Minute On the Minute (=starttid).',
     fields: [
       { key: 'every', label: 'Ny runde hvert', kind: 'duration', min: 5, max: HOUR, hint: 'Sett 2:00 for E2MOM.' },
       { key: 'rounds', label: 'Runder', kind: 'count', min: 1, max: 99 },
