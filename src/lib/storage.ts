@@ -10,6 +10,8 @@ export type Settings = {
   sound: boolean;
   /** 0..1 */
   volume: number;
+  /** Beep halfway through each work interval. */
+  halfway: boolean;
   /** Colour the whole screen by phase and flash on changes. */
   flash: boolean;
   /** Keep the screen on while a workout runs. */
@@ -25,7 +27,9 @@ export type Stored = {
   last: Partial<Record<Mode, WorkoutConfig>>;
 };
 
-export const DEFAULT_SETTINGS: Settings = { prep: 10, sound: true, volume: 0.8, flash: true, wakeLock: true };
+export const DEFAULT_SETTINGS: Settings = {
+  prep: 10, sound: true, volume: 0.8, halfway: false, flash: true, wakeLock: true,
+};
 export const MAX_PRESETS = 50;
 export const MAX_NAME = 40;
 export const PREP_MAX = 60;
@@ -52,6 +56,7 @@ export function parseStored(raw: string | null): Stored {
     prep: Math.round(num(s.prep, DEFAULT_SETTINGS.prep, 0, PREP_MAX)),
     sound: bool(s.sound, DEFAULT_SETTINGS.sound),
     volume: num(s.volume, DEFAULT_SETTINGS.volume, 0, 1),
+    halfway: bool(s.halfway, DEFAULT_SETTINGS.halfway),
     flash: bool(s.flash, DEFAULT_SETTINGS.flash),
     wakeLock: bool(s.wakeLock, DEFAULT_SETTINGS.wakeLock),
   };

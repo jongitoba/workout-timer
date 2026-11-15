@@ -37,7 +37,7 @@ function tone(freq: number, seconds: number, volume: number, delay = 0): void {
 
 /**
  * tick: short mid beep for 3-2-1. start of work: long high beep.
- * start of rest: long low beep. finish: three high beeps.
+ * start of rest: long low beep. halfway: two quick beeps. finish: three high beeps.
  * The start of the get-ready phase is silent; the Start tap is feedback enough.
  */
 export function playCue(cue: Cue, volume: number): void {
@@ -50,6 +50,10 @@ export function playCue(cue: Cue, volume: number): void {
     case 'start':
       if (cue.phase === 'work') tone(1320, 0.45, volume);
       else if (cue.phase === 'rest') tone(587, 0.45, volume);
+      break;
+    case 'half':
+      tone(1100, 0.08, volume);
+      tone(1100, 0.08, volume, 0.14);
       break;
     case 'finish':
       for (let i = 0; i < 3; i++) tone(1320, 0.18, volume, i * 0.25);
