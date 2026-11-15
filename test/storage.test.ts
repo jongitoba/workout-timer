@@ -45,3 +45,9 @@ test('last config is only kept under its own mode', () => {
   assert.equal(s.last.amrap, undefined);
   assert.deepEqual(s.last.emom, { mode: 'emom', every: 30, rounds: 10 });
 });
+
+test('the halfway beep is on unless it was turned off', () => {
+  assert.equal(parseStored(null).settings.halfway, true);
+  assert.equal(parseStored(JSON.stringify({ settings: { sound: true } })).settings.halfway, true);
+  assert.equal(parseStored(JSON.stringify({ settings: { halfway: false } })).settings.halfway, false);
+});
