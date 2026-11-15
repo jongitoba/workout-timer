@@ -58,9 +58,9 @@ test('halfway cues: only when asked for, only in work, never inside the countdow
     cuesBetween(p, -1, to, { halfway: true }).filter((c) => c.kind === 'half').map((c) => c.at / 1000);
   assert.deepEqual(halves(plan, 55_000), [15, 45]);
   assert.equal(cuesBetween(plan, -1, 55_000).some((c) => c.kind === 'half'), false);
-  const odd = buildPlan({ mode: 'interval', work: 45, rest: 15, rounds: 1, sets: 1, setRest: 0 }, 0);
+  const odd = buildPlan({ mode: 'tabata', work: 45, rest: 15, rounds: 1, sets: 1, setRest: 0 }, 0);
   assert.deepEqual(halves(odd, 45_000), [22.5]);
-  const short = buildPlan({ mode: 'interval', work: 6, rest: 0, rounds: 1, sets: 1, setRest: 0 }, 0);
+  const short = buildPlan({ mode: 'tabata', work: 6, rest: 0, rounds: 1, sets: 1, setRest: 0 }, 0);
   assert.deepEqual(halves(short, 6_000), []);
   const amrap = buildPlan({ mode: 'amrap', duration: 600 }, 0);
   assert.deepEqual(halves(amrap, 600_000), [300]);
