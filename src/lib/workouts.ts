@@ -2,11 +2,11 @@
 // Strings shown to visitors are Norwegian; everything else is English.
 import { formatShort } from './format.ts';
 
-export const MODES = ['tabata', 'amrap', 'emom', 'fortime', 'interval'] as const;
+export const MODES = ['tabata', 'amrap', 'emom', 'fortime'] as const;
 export type Mode = (typeof MODES)[number];
 
-export type IntervalConfig = {
-  mode: 'tabata' | 'interval';
+export type TabataConfig = {
+  mode: 'tabata';
   /** Seconds of work per round. */
   work: number;
   /** Seconds of rest between rounds. */
@@ -20,7 +20,7 @@ export type AmrapConfig = { mode: 'amrap'; duration: number };
 export type EmomConfig = { mode: 'emom'; every: number; rounds: number };
 /** `cap` 0 means no time cap. */
 export type ForTimeConfig = { mode: 'fortime'; cap: number };
-export type WorkoutConfig = IntervalConfig | AmrapConfig | EmomConfig | ForTimeConfig;
+export type WorkoutConfig = TabataConfig | AmrapConfig | EmomConfig | ForTimeConfig;
 
 export type FieldDef = {
   key: string;
@@ -47,7 +47,7 @@ export type ModeInfo = {
 
 const HOUR = 3600;
 
-const intervalFields: FieldDef[] = [
+const tabataFields: FieldDef[] = [
   { key: 'work', label: 'Arbeid', kind: 'duration', min: 1, max: HOUR },
   { key: 'rest', label: 'Hvile', kind: 'duration', min: 0, max: HOUR },
   { key: 'rounds', label: 'Runder', kind: 'count', min: 1, max: 99 },
@@ -60,8 +60,8 @@ export const MODE_INFO: Record<Mode, ModeInfo> = {
     mode: 'tabata',
     slug: 'tabata',
     title: 'Tabata',
-    summary: '20 sekunder arbeid, 10 sekunder hvile, 8 runder.',
-    fields: intervalFields,
+    summary: 'Jobbe og hvile, i flere runder.',
+    fields: tabataFields,
     defaults: { mode: 'tabata', work: 20, rest: 10, rounds: 8, sets: 1, setRest: 60 },
     countsRounds: false,
   },
@@ -69,7 +69,7 @@ export const MODE_INFO: Record<Mode, ModeInfo> = {
     mode: 'amrap',
     slug: 'amrap',
     title: 'AMRAP',
-    summary: 'Så mange runder som mulig før tiden er ute.',
+    summary: 'As Many Reps As Possible, før tia går ut.',
     fields: [
       {
         key: 'duration', label: 'Varighet', kind: 'duration', min: 10, max: 4 * HOUR, plainUnit: 60,
@@ -83,7 +83,7 @@ export const MODE_INFO: Record<Mode, ModeInfo> = {
     mode: 'emom',
     slug: 'emom',
     title: 'EMOM',
-    summary: 'Ny runde hvert minutt. Hvil resten av minuttet.',
+    summary: 'Every Minute On the Minute (=starttid).',
     fields: [
       { key: 'every', label: 'Ny runde hvert', kind: 'duration', min: 5, max: HOUR, hint: 'Sett 2:00 for E2MOM.' },
       { key: 'rounds', label: 'Runder', kind: 'count', min: 1, max: 99 },
@@ -105,19 +105,13 @@ export const MODE_INFO: Record<Mode, ModeInfo> = {
     defaults: { mode: 'fortime', cap: 20 * 60 },
     countsRounds: true,
   },
-  interval: {
-    mode: 'interval',
-    slug: 'intervall',
-    title: 'Intervall',
-    summary: 'Velg arbeid, hvile, runder og sett selv.',
-    fields: intervalFields,
-    defaults: { mode: 'interval', work: 40, rest: 20, rounds: 10, sets: 1, setRest: 60 },
-    countsRounds: false,
-  },
 };
 
+/** Old links to the removed Intervall mode open Tabata, which has the same fields. */
+const SLUG_ALIASES: Record<string, Mode> = { intervall: 'tabata' };
+
 export const modeBySlug = (slug: string): Mode | undefined =>
-  MODES.find((m) => MODE_INFO[m].slug === slug);
+  MODES.find((m) => MODE_INFO[m].slug === slug) ?? SLUG_ALIASES[slug];
 
 /** Reads a numeric field from a config by its FieldDef key. */
 export function getField(config: WorkoutConfig, key: string): number {
@@ -140,7 +134,9 @@ const clamp = (v: number, def: FieldDef) => Math.min(def.max, Math.max(def.min, 
 export function normalizeConfig(input: unknown): WorkoutConfig | null {
   if (!input || typeof input !== 'object') return null;
   const raw = input as Record<string, unknown>;
-  const mode = MODES.find((m) => m === raw.mode);
+  // The removed Intervall mode had the same fields as Tabata, so saved ones become Tabata.
+  const rawMode = raw.mode === 'interval' ? 'tabata' : raw.mode;
+  const mode = MODES.find((m) => m === rawMode);
   if (!mode) return null;
   const info = MODE_INFO[mode];
   const out: Record<string, unknown> = { mode };
@@ -190,8 +186,7 @@ export function buildPlan(config: WorkoutConfig, prepSeconds: number): Plan {
   push({ phase: 'prep', duration: sec(prepSeconds), countUp: false });
 
   switch (config.mode) {
-    case 'tabata':
-    case 'interval': {
+    case 'tabata': {
       const { work, rest, rounds, sets, setRest } = config;
       for (let set = 1; set <= sets; set++) {
         for (let round = 1; round <= rounds; round++) {
@@ -231,8 +226,7 @@ export function workoutSeconds(config: WorkoutConfig): number {
 /** One-line summary of a config, e.g. "20 s / 10 s × 8". */
 export function describeConfig(config: WorkoutConfig): string {
   switch (config.mode) {
-    case 'tabata':
-    case 'interval': {
+    case 'tabata': {
       const base = `${formatShort(config.work)} / ${formatShort(config.rest)} × ${config.rounds}`;
       return config.sets > 1 ? `${base} × ${config.sets} sett` : base;
     }
@@ -249,7 +243,7 @@ export function describeConfig(config: WorkoutConfig): string {
 export function phaseLabel(seg: Segment, mode: Mode): string {
   if (seg.phase === 'prep') return 'Gjør deg klar';
   if (seg.phase === 'rest') return seg.betweenSets ? 'Pause' : 'Hvile';
-  return mode === 'tabata' || mode === 'interval' ? 'Arbeid' : 'Kjør!';
+  return mode === 'tabata' ? 'Arbeid' : 'Kjør!';
 }
 
 /** Smaller line under the clock: which round, or what comes next. */

@@ -58,7 +58,7 @@ Domain rules that the code depends on:
   colours were checked for at least 4.5:1 contrast against white text (and the dark-mode
   variants against the dark background); re-check if you change them. Respect
   `prefers-reduced-motion`.
-- Tabata and Intervall end on the last work interval (no trailing rest), so default
+- Tabata ends on the last work interval (no trailing rest), so default
   Tabata is 3:50. Between sets, the last rest of a set is replaced by "Pause mellom sett".
 - For Time counts up; a cap of 0 means open-ended, and the "Ferdig" button ends it.
   AMRAP and For Time show a "+1 runde" counter that ends up in the result.

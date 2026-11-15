@@ -31,11 +31,10 @@ scripts/make-icons.mjs        ← draws public/icons/*.png
 
 | Mode | Fields | Notes |
 |---|---|---|
-| Tabata | work, rest, rounds, sets, rest between sets | Defaults 20 s / 10 s × 8 |
+| Tabata | work, rest, rounds, sets, rest between sets | Defaults 20 s / 10 s × 8; set your own values for other intervals |
 | AMRAP | duration | Counts down, "+1 runde" counter |
 | EMOM | interval, rounds | Set the interval to 2:00 for E2MOM |
 | For Time | time cap (0 = none) | Counts up, "Ferdig" stops it, "+1 runde" counter |
-| Intervall | same as Tabata | Defaults 40 s / 20 s × 10 |
 
 Every workout starts with a get-ready countdown (10 s by default, set in Innstillinger).
 Duration fields take `1:30`, `1.30` or `1,30`. A plain number means seconds, except for
