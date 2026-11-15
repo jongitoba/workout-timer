@@ -30,12 +30,27 @@ test('segments are contiguous', () => {
   }
 });
 
-test('sets: the last rest of a set becomes the set rest', () => {
+test('sets: the last rest of a set runs before the set pause, except in the last set', () => {
   const cfg: WorkoutConfig = { mode: 'tabata', work: 30, rest: 15, rounds: 2, sets: 2, setRest: 60 };
-  assert.deepEqual(phases(cfg), ['work:30', 'rest:15', 'work:30', 'rest:60', 'work:30', 'rest:15', 'work:30']);
-  const setRest = buildPlan(cfg, 0).segments[3]!;
-  assert.equal(setRest.betweenSets, true);
-  assert.equal(segmentCaption(setRest), 'Neste: sett 2 av 2');
+  assert.deepEqual(phases(cfg), [
+    'work:30', 'rest:15', 'work:30', 'rest:15', 'rest:60', 'work:30', 'rest:15', 'work:30',
+  ]);
+  const segs = buildPlan(cfg, 0).segments;
+  assert.equal(segs[3]!.betweenSets, undefined);
+  assert.equal(segmentCaption(segs[3]!), 'Neste: pause mellom sett');
+  assert.equal(segs[4]!.betweenSets, true);
+  assert.equal(segmentCaption(segs[4]!), 'Neste: sett 2 av 2');
+});
+
+test('sets: with no set pause, the last rest leads straight into the next set', () => {
+  const cfg: WorkoutConfig = { mode: 'tabata', work: 30, rest: 15, rounds: 2, sets: 2, setRest: 0 };
+  assert.deepEqual(phases(cfg), ['work:30', 'rest:15', 'work:30', 'rest:15', 'work:30', 'rest:15', 'work:30']);
+  assert.equal(segmentCaption(buildPlan(cfg, 0).segments[3]!), 'Neste: runde 1 av 2 · Sett 2 av 2');
+});
+
+test('sets: with no rest, the set pause follows the last work directly', () => {
+  const cfg: WorkoutConfig = { mode: 'tabata', work: 30, rest: 0, rounds: 2, sets: 2, setRest: 60 };
+  assert.deepEqual(phases(cfg), ['work:30', 'work:30', 'rest:60', 'work:30', 'work:30']);
 });
 
 test('zero rest and zero prep produce no empty segments', () => {

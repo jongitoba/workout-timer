@@ -13,7 +13,7 @@ export type TabataConfig = {
   rest: number;
   rounds: number;
   sets: number;
-  /** Seconds of rest between sets (replaces the last rest of a set). */
+  /** Seconds of pause between sets, after the set's last rest. */
   setRest: number;
 };
 export type AmrapConfig = { mode: 'amrap'; duration: number };
@@ -163,6 +163,8 @@ export type Segment = {
   sets?: number;
   /** A rest segment between two sets. */
   betweenSets?: boolean;
+  /** A set's last rest, followed by the pause between sets. */
+  beforeSetRest?: boolean;
 };
 
 export type Plan = {
@@ -194,6 +196,12 @@ export function buildPlan(config: WorkoutConfig, prepSeconds: number): Plan {
           if (round < rounds) {
             push({ phase: 'rest', duration: sec(rest), countUp: false, round: round + 1, rounds, set, sets });
           } else if (set < sets) {
+            // The set's last rest is kept, then the pause between sets follows.
+            // Only the very last set ends on work.
+            push({
+              phase: 'rest', duration: sec(rest), countUp: false,
+              round: 1, rounds, set: set + 1, sets, beforeSetRest: setRest > 0,
+            });
             push({
               phase: 'rest', duration: sec(setRest), countUp: false,
               round: 1, rounds, set: set + 1, sets, betweenSets: true,
@@ -252,6 +260,7 @@ export function segmentCaption(seg: Segment): string {
   if (seg.phase === 'prep') return 'Starter snart';
   if (seg.phase === 'rest') {
     if (seg.betweenSets) return `Neste: sett ${seg.set} av ${seg.sets}`;
+    if (seg.beforeSetRest) return 'Neste: pause mellom sett';
     return `Neste: runde ${seg.round} av ${seg.rounds}${setPart}`;
   }
   if (seg.round && seg.rounds) return `Runde ${seg.round} av ${seg.rounds}${setPart}`;
